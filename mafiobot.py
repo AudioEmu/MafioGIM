@@ -288,7 +288,7 @@ async def maskedVigShot(interaction, target :str):
 """
 @tree.command(
 	name='m',
-	description='Use your mask to talk in day chat. Only works during Masquerades.',
+	description='Use your mask to talk in day chat.',
 	guild=discord.Object(id=serverID)
 			)
 async def maskChat(interaction, message :str, attachment :discord.Attachment=None):
@@ -305,24 +305,26 @@ async def maskChat(interaction, message :str, attachment :discord.Attachment=Non
 		await interaction.followup.send(f'You are not in the list of active players!', ephemeral=True)
 	elif (players[speakerIndex].maskName==None or players[speakerIndex].maskImageURL==None):
 		await interaction.followup.send(f'You don\'t have a mask set up! Have a GM use /set_mask to give you one!', ephemeral=True)
-	elif not state.isMasquerade:
-		await interaction.followup.send(f'This command can only be used during masquerades!', ephemeral=True)
+	#elif not state.isMasquerade:
+	#	await interaction.followup.send(f'This command can only be used during masquerades!', ephemeral=True)
 	elif not state.isDay:
 		await interaction.followup.send(f'You can only do this during the day!', ephemeral=True)
+	elif (deadRole in interaction.users.roles):
+		await interaction.followup.send(f'You can\'t do this while dead!', ephemeral=True)
 	else:
 		async with aiohttp.ClientSession() as session:
-			if ((deadRole in interaction.user.roles) or (players[speakerIndex].isDead)):
+			"""if ((deadRole in interaction.user.roles) or (players[speakerIndex].isDead)):
 				webhook=Webhook.from_url(raveyardWebhookURL, session=session)
 				await webhook.send(message, username=players[speakerIndex].maskName, avatar_url=players[speakerIndex].maskImageURL)
 				if not attachment==None:
 					await webhook.send(attachment.url, username=players[speakerIndex].maskName, avatar_url=players[speakerIndex].maskImageURL)
 				await interaction.followup.send(f'***In Raveyard:*** {message}', ephemeral=True)
-			else:
-				webhook=Webhook.from_url(masqueradeWebhookURL, session=session)
-				await webhook.send(message, username=players[speakerIndex].maskName, avatar_url=players[speakerIndex].maskImageURL)
-				if not attachment==None:
-					await webhook.send(attachment.url, username=players[speakerIndex].maskName, avatar_url=players[speakerIndex].maskImageURL)
-				await interaction.followup.send(f'{message}', ephemeral=True)
+			else:"""
+			webhook=Webhook.from_url(masqueradeWebhookURL, session=session)
+			await webhook.send(message, username=players[speakerIndex].maskName, avatar_url=players[speakerIndex].maskImageURL)
+			if not attachment==None:
+				await webhook.send(attachment.url, username=players[speakerIndex].maskName, avatar_url=players[speakerIndex].maskImageURL)
+			await interaction.followup.send(f'{message}', ephemeral=True)
 """
 @tree.command(
 	name='comment',
@@ -755,8 +757,8 @@ async def on_message(message):
 			await logChannel.send(f'{message.author.mention} has reset to Night 0 with no day channel, free comments, and no masquerade!')
 			pSave(state, stateSaveFile)
 			await message.delete()
-
-	if(message.content=="/toggleDay"):
+"""
+	if(message.content=="=toggleday"):
 		if not gmRole in message.author.roles:
 			await message.delete()
 		else:
@@ -767,7 +769,7 @@ async def on_message(message):
 			pSave(state, stateSaveFile)
 			await logChannel.send(f'{message.author.mention} toggled day/night, making it {state.returnDayState()}!')
 			await message.delete()
-
+"""
 	if(message.content=='/toggleFreeComments'):
 		if not gmRole in message.author.roles:
 			await message.delete()
@@ -809,10 +811,12 @@ async def on_ready():
 	for guild in client.guilds:
 		if guild.id==serverID:
 			thisServer=guild
-	gmRole=discord.utils.get(thisServer.roles,name="Game Master")
-	deadRole=discord.utils.get(thisServer.roles,name="Dead")
+	gmRole=discord.utils.get(thisServer.roles,name="Fox masked in memes")
+	deadRole=discord.utils.get(thisServer.roles,name="dead")
+	playingRole=discord.utils.get(thisServer.roles,name="game 36 player")
+	print(gmRole.name)
 	print(deadRole.name)
-	playingRole=discord.utils.get(thisServer.roles,name="Playing")
+	print(playingRole.name)
 	await tree.sync(guild=discord.Object(id=serverID))
 	print('Bot is ready!')
 
